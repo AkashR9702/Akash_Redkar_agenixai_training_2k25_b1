@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT ip) as Number_of_Unique_ip FROM apache_logs;
