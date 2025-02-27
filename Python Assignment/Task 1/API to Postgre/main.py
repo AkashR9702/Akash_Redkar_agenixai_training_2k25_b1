@@ -1,19 +1,33 @@
-from Fetch_data import get_all_pokemon, get_pokemon_details
-from Insertion_table import insert_pokemon_batch
-import requests
+from Database import Database
+from pokemon_api_fetch import PokemonAPIFetch
+import logging
 
-def fetch_and_store_all_pokemon():
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    all_pokemon = get_all_pokemon()
-    pokemon_list = []
+class Data:
+    def __init__(self):
 
-    with requests.Session() as session:  
+        self.db = Database()
+        self.api = PokemonAPIFetch()
+
+    def fetch_and_store_all_pokemon(self):
+
+        # Fetch all Pokémon and store them in the Database
+        pokemon_list = []
+        
+        all_pokemon = self.api.get_all_pokemon()
         for p in all_pokemon:
-            details = get_pokemon_details(p["url"], session)
+            details = self.api.get_pokemon_details(p["url"]) 
             if details:
                 pokemon_list.append(details)
 
-    insert_pokemon_batch(pokemon_list)
+        # Insert all Pokémon details into the Database
+        self.db.insert_pokemon_batch(pokemon_list)
+
+        self.db.close_connection()
 
 if __name__ == "__main__":
-    fetch_and_store_all_pokemon()
+    data = Data()
+    data.fetch_and_store_all_pokemon()
+
+
